@@ -22,6 +22,9 @@
     (get freqs i 0)))
 
 
-(let [n (read-string (read-line))]
-  (apply print (faster-frequencies (read-values n) 100)))
+(let [n (read-string (read-line))
+      frequencies (faster-frequencies (read-values n) 100)]
+  (dotimes [i (count frequencies)]
+    (apply print (repeat (aget frequencies i) i))))
+
 
