@@ -1,44 +1,52 @@
 from functools import lru_cache
 
-__author__ = 'ray'
-
-sum = 8
-coins = [4, 2,1]
+N, M = [int(_) for _ in input().split(" ")]
+coins = [int(_) for _ in input().strip().split(" ")][:M]
+coins.sort(reverse=True)
 last_coin_idx = len(coins) - 1
 
 
-def flatten_to_list(*args):
-    def always_iter(obj):
-        return obj if hasattr(obj, "__iter__") else (obj,)
+@lru_cache(maxsize=512)
+def count(coin_idx, total):
+    # If n is 0 then there is 1 solution (do not include any coin)
+    if total == 0:
+        return 1
 
-    return [item for arg in args for item in always_iter(arg)]
+    # If n is less than 0 then no solution exists
+    if total < 0:
+        return 0
 
-def calculate(total, coin_idx):
-    combinations = []
-    coin = coins[coin_idx]
-    fits, remains = divmod(total, coin)
+    # If there are no coins and n is greater than 0, then no solution exist
+    if coin_idx <= 0 and total >= 1:
+        return 0
 
-    if coin_idx == last_coin_idx:
-        return [coin]* fits if remains == 0 else []
-    else:
-        if fits == 0:
-            combinations = calculate(total, coin_idx + 1)
-        elif fits == 1:
-            if remains == 0:
-                combinations.append([coin])
-            else:
-                new_total = total - coin
-                for subcombination in calculate(new_total, coin_idx + 1):
-                    combinations.append(flatten_to_list(coin, subcombination))
-        else:
-            for subcombination in calculate(coin, coin_idx):
-                combinations.append(flatten_to_list(coin, subcombination))
+    # count is sum of solutions (i) including S[m-1] (ii) excluding S[m-1]
+    return count(coin_idx - 1, total) + count(coin_idx, total - coins[coin_idx - 1])
 
-    return combinations
 
-for idx in range(len(coins)):
-    print(calculate(sum, idx))
+def optimized_count(coin_count, total):
+    # table[i] will be storing the number of solutions for
+    # value i. We need n+1 rows as the table is consturcted
+    # in bottom up manner using the base case (n = 0)
+    solutions = [0] * (total + 1)
 
-#8
-#4 4
-#4 1 1 1 1
+    # Base case (If given value is 0)
+    solutions[0] = 1
+
+    # Pick all coins one by one and update the table[] values
+    # after the index greater than or equal to the value of the
+    # picked coin
+    for coin_idx in range(coin_count):
+        coin = coins[coin_idx]
+        print("############### Coin ", coin)
+        for amount in range(coin, total + 1):
+            print("amount", amount, " a - c",amount - coin)
+            print([str(_[1]) if _[0] == amount else "_" for _ in enumerate(solutions)])
+            solutions[amount] += solutions[amount - coin]
+            print([str(_[1]) if _[0] == amount else "_" for _ in enumerate(solutions)])
+
+    return solutions[total]
+
+print(coins)
+print([str(_) for _ in range(0, N+1)])
+print(optimized_count(M, N))
