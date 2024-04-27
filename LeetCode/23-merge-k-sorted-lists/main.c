@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+struct ListNode {
+   int val;
+   struct ListNode *next;
+};
 
 struct PriorityQueue
 {
