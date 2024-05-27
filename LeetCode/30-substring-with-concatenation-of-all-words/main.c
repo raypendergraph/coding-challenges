@@ -30,6 +30,8 @@ void printStringArray(char *arr[], unsigned arrCount)
 /******************************
  * WordSet
  ******************************/
+
+
 struct Element
 {
    unsigned long hash;
